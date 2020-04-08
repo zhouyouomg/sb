@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhouyou.sb.mapper.UserRoleMapper">
+
+    <resultMap type="com.zhouyou.sb.entity.UserRole" id="UserRoleMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+        <result property="roleId" column="role_id" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <!--根据用户id查询该用户所有角色-->
+    <select id="getRolesByUserId" resultType="string" parameterType="string">
+        select sr.role_value
+        from user_role ur
+                 left join sys_role sr on ur.role_id = sr.id
+        where ur.user_id = #{userId,jdbcType=VARCHAR}
+          and sr.is_disable = 0
+    </select>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="UserRoleMap">
+        select
+          id, user_id, role_id
+        from user.user_role
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="UserRoleMap">
+        select
+          id, user_id, role_id
+        from user.user_role
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="UserRoleMap">
+        select
+          id, user_id, role_id
+        from user.user_role
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="userId != null and userId != ''">
+                and user_id = #{userId}
+            </if>
+            <if test="roleId != null and roleId != ''">
+                and role_id = #{roleId}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into user.user_role(user_id, role_id)
+        values (#{userId}, #{roleId})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update user.user_role
+        <set>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId},
+            </if>
+            <if test="roleId != null and roleId != ''">
+                role_id = #{roleId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from user.user_role where id = #{id}
+    </delete>
+
+</mapper>

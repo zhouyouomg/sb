@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhouyou.sb.mapper.SysPermMapper">
+
+    <resultMap type="com.zhouyou.sb.entity.SysPerm" id="SysPermMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="permName" column="perm_name" jdbcType="VARCHAR"/>
+        <result property="permDesc" column="perm_desc" jdbcType="VARCHAR"/>
+        <result property="permValue" column="perm_value" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDisable" column="is_disable" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="SysPermMap">
+        select
+          id, perm_name, perm_desc, perm_value, create_time, update_time, is_disable
+        from user.sys_perm
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="SysPermMap">
+        select
+          id, perm_name, perm_desc, perm_value, create_time, update_time, is_disable
+        from user.sys_perm
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="SysPermMap">
+        select
+          id, perm_name, perm_desc, perm_value, create_time, update_time, is_disable
+        from user.sys_perm
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="permName != null and permName != ''">
+                and perm_name = #{permName}
+            </if>
+            <if test="permDesc != null and permDesc != ''">
+                and perm_desc = #{permDesc}
+            </if>
+            <if test="permValue != null and permValue != ''">
+                and perm_value = #{permValue}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="isDisable != null">
+                and is_disable = #{isDisable}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into user.sys_perm(perm_name, perm_desc, perm_value, create_time, update_time, is_disable)
+        values (#{permName}, #{permDesc}, #{permValue}, #{createTime}, #{updateTime}, #{isDisable})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update user.sys_perm
+        <set>
+            <if test="permName != null and permName != ''">
+                perm_name = #{permName},
+            </if>
+            <if test="permDesc != null and permDesc != ''">
+                perm_desc = #{permDesc},
+            </if>
+            <if test="permValue != null and permValue != ''">
+                perm_value = #{permValue},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="isDisable != null">
+                is_disable = #{isDisable},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from user.sys_perm where id = #{id}
+    </delete>
+
+</mapper>

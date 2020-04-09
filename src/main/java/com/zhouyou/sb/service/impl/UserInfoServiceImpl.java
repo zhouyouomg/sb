@@ -3,7 +3,7 @@ package com.zhouyou.sb.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.zhouyou.sb.core.ServiceException;
-import com.zhouyou.sb.core.universal.AbsratctService;
+import com.zhouyou.sb.core.universal.AbstractService;
 import com.zhouyou.sb.entity.UserInfo;
 import com.zhouyou.sb.mapper.db1.UserInfoMapper;
 import com.zhouyou.sb.service.UserInfoService;
@@ -19,7 +19,7 @@ import java.util.List;
  * @since 2020-04-07 11:31:23
  */
 @Service("userInfoService")
-public class UserInfoServiceImpl extends AbsratctService<UserInfo> implements UserInfoService {
+public class UserInfoServiceImpl extends AbstractService<UserInfo> implements UserInfoService {
 
 
     @Resource

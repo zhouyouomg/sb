@@ -9,7 +9,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
-public abstract class AbsratctService<T> implements Service<T> {
+public abstract class AbstractService<T> implements Service<T> {
+
     @Autowired
     protected Mapper<T> mapper;
 
@@ -49,6 +50,14 @@ public abstract class AbsratctService<T> implements Service<T> {
     @Override
     public T selectBy(String fieldName, Object value) throws TooManyResultsException {
         try {
+
+            //Class a = Class.forName("com.zhouyou.sb.entity.UserInfo");
+            //UserInfo b = (UserInfo)a.newInstance();
+            //Field field = a.getDeclaredField(fieldName);
+            //获得超类的泛型参数的实际类型   否则报空指针异常
+            ParameterizedType pt = (ParameterizedType) this.getClass().getGenericSuperclass();
+            modelClass = (Class<T>) pt.getActualTypeArguments()[0];
+
             T model = modelClass.newInstance();
             Field field = modelClass.getDeclaredField(fieldName);
             field.setAccessible(true);
@@ -60,7 +69,7 @@ public abstract class AbsratctService<T> implements Service<T> {
     }
 
     @Override
-    public List<T> selectListBy(String fieldName, Object value)  {
+    public List<T> selectListBy(String fieldName, Object value) {
         try {
             T model = modelClass.newInstance();
             Field field = modelClass.getDeclaredField(fieldName);
@@ -83,12 +92,12 @@ public abstract class AbsratctService<T> implements Service<T> {
     }
 
     @Override
-    public List<T> select(T record){
+    public List<T> select(T record) {
         return mapper.select(record);
     }
 
     @Override
-    public T selectOne(T recoed){
+    public T selectOne(T recoed) {
         return mapper.selectOne(recoed);
     }
 }

@@ -41,7 +41,7 @@ public class CustomRealm extends AuthorizingRealm {
         hashMatcher.setHashAlgorithmName("md5");
         hashMatcher.setStoredCredentialsHexEncoded(true);
         //加密的次数
-        hashMatcher.setHashIterations(1024);
+        hashMatcher.setHashIterations(1);
         this.setCredentialsMatcher(hashMatcher);
     }
 
@@ -75,8 +75,8 @@ public class CustomRealm extends AuthorizingRealm {
         if (userDB == null) {
             throw new UnknownAccountException("No account found for admin [" + username + "]");
         }
-        //查询用户的角色和权限存到SimpleAuthenticationInfo中，这样在其它地方
-        //SecurityUtils.getSubject().getPrincipal()就能拿出用户的所有信息，包括角色和权限
+        //查询用户的角色和权限存到SimpleAuthenticationInfo中，这样在其它地方就能拿出用户的所有信息，包括角色和权限
+        //SecurityUtils.getSubject().getPrincipal()
         List<String> roleList = userRoleService.getRolesByUserId(userDB.getId());
         List<String> permList = rolePermService.getPermsByUserId(userDB.getId());
         Set<String> roles = new HashSet(roleList);

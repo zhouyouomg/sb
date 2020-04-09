@@ -1,5 +1,7 @@
 package com.zhouyou.sb.entity;
 
+import lombok.Data;
+
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Transient;
@@ -15,9 +17,15 @@ import java.util.Set;
 public class UserInfo implements Serializable {
     private static final long serialVersionUID = 924514363032697995L;
 
+    /**
+     * 主键
+     */
     @Id
     private String id;
 
+    /**
+     * 用户名
+     */
     @Column(name = "user_name")
     private String userName;
 
@@ -41,11 +49,12 @@ public class UserInfo implements Serializable {
     private Set<String> perms;
 
 
-    public String  getId() {
+
+    public String getId() {
         return id;
     }
 
-    public void setId(String  id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -57,23 +66,12 @@ public class UserInfo implements Serializable {
         this.userName = userName;
     }
 
-    public UserInfo() {
-    }
-
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getSalt() {
-        return salt;
-    }
-
-    public void setSalt(String salt) {
-        this.salt = salt;
     }
 
     public Set<String> getRoles() {
@@ -90,5 +88,13 @@ public class UserInfo implements Serializable {
 
     public void setPerms(Set<String> perms) {
         this.perms = perms;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }

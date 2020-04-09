@@ -3,9 +3,15 @@ package com.zhouyou.sb.controller;
 import com.github.pagehelper.PageInfo;
 import com.zhouyou.sb.core.RetResponse;
 import com.zhouyou.sb.core.RetResult;
+import com.zhouyou.sb.core.ServiceException;
 import com.zhouyou.sb.entity.UserInfo;
 import com.zhouyou.sb.service.UserInfoService;
 import io.swagger.annotations.*;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -69,6 +75,23 @@ public class UserInfoController {
                                                    @RequestParam(name = "userName",required = false) String userName) {
         PageInfo<UserInfo> pageInfo = userInfoService.selectQuery(page, size,userName);
         return RetResponse.result(pageInfo);
+    }
+
+    @PostMapping("/login")
+    @ApiOperation("登录")
+    public RetResult<UserInfo> login(String userName, String password){
+
+        Subject subject = SecurityUtils.getSubject();
+
+        try {
+            subject.login(new UsernamePasswordToken(userName,password));
+        } catch (IncorrectCredentialsException e) {
+            throw new ServiceException("密码错误");
+        }
+        //从session取出信息
+        UserInfo userInfo = (UserInfo)subject.getPrincipal();
+
+        return RetResponse.result(userInfo);
     }
 
 

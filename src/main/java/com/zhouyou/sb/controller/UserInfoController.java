@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.zhouyou.sb.core.RetResponse;
 import com.zhouyou.sb.core.RetResult;
 import com.zhouyou.sb.core.ServiceException;
+import com.zhouyou.sb.core.aop.AnnotationLog;
 import com.zhouyou.sb.entity.UserInfo;
 import com.zhouyou.sb.service.UserInfoService;
 import io.swagger.annotations.*;
@@ -47,6 +48,7 @@ public class UserInfoController {
             @ApiImplicitParam(name = "id", value = "用户ID", required = true,
                     dataType = "Integer", paramType = "query")
     })
+    @AnnotationLog(remark = "查询")
     @GetMapping("selectOne")
     public RetResult<UserInfo> selectOne(@RequestParam String id) {
         UserInfo userInfo = this.userInfoService.queryById(id);

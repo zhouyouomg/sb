@@ -12,6 +12,8 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -33,6 +35,7 @@ public class UserInfoController {
     @Resource
     private UserInfoService userInfoService;
 
+    Logger logger = LoggerFactory.getLogger(UserInfoController.class);
     /**
      * 通过主键查询单条数据
      *
@@ -47,6 +50,7 @@ public class UserInfoController {
     @GetMapping("selectOne")
     public RetResult<UserInfo> selectOne(@RequestParam String id) {
         UserInfo userInfo = this.userInfoService.queryById(id);
+        logger.info("123456");
         return RetResponse.result(userInfo);
     }
 

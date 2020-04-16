@@ -7,19 +7,27 @@ import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4;
 import com.zhouyou.sb.core.RetCode;
 import com.zhouyou.sb.core.RetResult;
 import com.zhouyou.sb.core.ServiceException;
+import com.zhouyou.sb.core.interceptor.Interceptor1;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +41,9 @@ import java.util.List;
 public class WebConfigurer extends WebMvcConfigurationSupport {
 
     private Logger logger = LoggerFactory.getLogger(WebConfigurer.class);
+
+    private static final String IZATION = "ZHOUYOU";
+
 
     /**
      * 修改自定义消息转换器
@@ -157,6 +168,7 @@ public class WebConfigurer extends WebMvcConfigurationSupport {
             logger.error(ex.getMessage());
         }
     }
+
     @Override
     public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
         exceptionResolvers.add(new HandlerExceptionResolver() {
@@ -171,9 +183,9 @@ public class WebConfigurer extends WebMvcConfigurationSupport {
                     result.setCode(RetCode.NOT_FOUND).setMsg("接口 [" + request.getRequestURI() + "] 不存在");
                 } else if (e instanceof UnauthorizedException) {
                     result.setCode(RetCode.UNAUTHEN).setMsg("用户没有访问权限").setData(null);
-                }else if (e instanceof UnauthenticatedException) {
+                } else if (e instanceof UnauthenticatedException) {
                     result.setCode(RetCode.UNAUTHEN).setMsg("用户未登录").setData(null);
-                }else if (e instanceof ServletException) {
+                } else if (e instanceof ServletException) {
                     result.setCode(RetCode.ERROR).setMsg(e.getMessage());
                 } else {
                     result.setCode(RetCode.INTERNAL_SERVER_ERROR).setMsg("接口 [" + request.getRequestURI() + "] 内部错误，请联系管理员");
@@ -191,6 +203,57 @@ public class WebConfigurer extends WebMvcConfigurationSupport {
                 return new ModelAndView();
             }
         });
+    }
+
+    /**
+     * 添加拦截器  请求头拦截
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(
+                //注意，HandlerInterceptorAdapter  这里可以修改为自己创建的拦截器
+                new Interceptor1() {
+                    @Override
+                    public boolean preHandle(HttpServletRequest request,
+                                             HttpServletResponse response, Object handler) throws Exception {
+                        String ization = request.getHeader("ization");
+                        if (IZATION.equals(ization)) {
+                            return true;
+                        } else {
+                            RetResult<Object> result = new RetResult<>();
+                            result.setCode(RetCode.UNAUTHORIZED).setMsg("签名认证失败");
+                            responseResult(response, result);
+                            return false;
+                        }
+                    }
+                }
+                //这里添加的是拦截的路径  /**为全部拦截
+        ).addPathPatterns("/userInfo/selectAll");
+    }
+
+
+    /**
+     * CORS跨域解决
+     * @return
+     */
+    private CorsConfiguration buildConfig() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        //请求方法    config.addAllowedMethod(HttpMethod.GET);
+        config.addAllowedMethod(HttpMethod.POST);
+        config.addAllowedMethod(HttpMethod.PUT);
+        config.addAllowedMethod(HttpMethod.DELETE);
+        config.addAllowedMethod(HttpMethod.OPTIONS);
+        return config;
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource configSource = new UrlBasedCorsConfigurationSource();
+        //处理全部请求路径
+        configSource.registerCorsConfiguration("/**", buildConfig());
+        return new CorsFilter(configSource);
     }
 
 }

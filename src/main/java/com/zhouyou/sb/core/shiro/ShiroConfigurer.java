@@ -2,15 +2,21 @@ package com.zhouyou.sb.core.shiro;
 
 import com.zhouyou.sb.entity.SysPermissionInit;
 import com.zhouyou.sb.service.SysPermissionInitService;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.realm.Realm;
+import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
 import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
+import org.apache.shiro.subject.Subject;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 public class ShiroConfigurer {
@@ -61,6 +67,23 @@ public class ShiroConfigurer {
             chain.addPathDefinition(sysPermissionInit.getUrl(), sysPermissionInit.getPermissionInit());
         }
         return chain;
+    }
+
+    @Bean
+    public SessionManager sessionManager(){
+        return new MySessionManager();
+    }
+
+    //@Override
+    //登录方法
+    public Map<String, Object> userLogin(String userName, String password) {
+        Subject currentUser = SecurityUtils.getSubject();
+        currentUser.login(new UsernamePasswordToken(userName, password));
+        //从session取出用户信息
+        //UserInfo user = (UserInfo) currentUser.getPrincipal();
+        Map<String,Object> map = new HashMap<>(3);
+        map.put("sessionId",currentUser.getSession().getId());
+        return map;
     }
 
 }
